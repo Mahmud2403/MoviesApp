@@ -4,26 +4,32 @@ import com.example.moviesapp.data.network.ApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
-import dagger.hilt.android.scopes.ViewModelScoped
+import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import javax.inject.Singleton
 
 
 @Module
-@InstallIn(ViewModelComponent::class)
-abstract class DataModule {
+@InstallIn(SingletonComponent::class)
+class DataModule {
 
 	companion object {
-
-		private const val BASE_URL = "http://api/tvmaze.com"
+		private const val BASE_URL = "http://api.tvmaze.com"
 	}
 
 	@Provides
-	@ViewModelScoped
-	fun provideRetrofit(): ApiService = Retrofit.Builder()
-		.baseUrl(BASE_URL)
-		.addConverterFactory(GsonConverterFactory.create())
-		.build()
-		.create(ApiService::class.java)
+	@Singleton
+	fun provideRetrofit(): Retrofit {
+		return Retrofit.Builder()
+			.baseUrl(BASE_URL)
+			.addConverterFactory(GsonConverterFactory.create())
+			.build()
+	}
+
+	@Provides
+	@Singleton
+	fun provideApi(retrofit: Retrofit): ApiService{
+		return retrofit.create(ApiService::class.java)
+	}
 }
