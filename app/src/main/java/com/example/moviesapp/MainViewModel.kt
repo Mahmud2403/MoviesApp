@@ -15,8 +15,9 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(private val repository: MoviesRepository): ViewModel() {
 
-	private val _allMovies = MutableLiveData<Result>(Result.Loading)
-	val allMovies: LiveData<Result> = _allMovies
+	private val _allMovies = MutableLiveData<List<MoviesModel>>()
+	val allMovies: LiveData<List<MoviesModel>>
+		get() = _allMovies
 
 	init {
 		getAllMovies()
@@ -24,13 +25,10 @@ class MainViewModel @Inject constructor(private val repository: MoviesRepository
 
 	fun getAllMovies() {
 		viewModelScope.launch {
-			_allMovies.value = Result.Loading
 			repository.getMovies().let {
 				if (it.isSuccessful){
-					_allMovies.value = Result.Success(data = it.body()?: emptyList())
+					_allMovies.value = it.body()
 				} else{
-					_allMovies.value = Result.Error(message = "Error")
-
 					Log.e("checkData", "${it.errorBody()}")
 				}
 			}
